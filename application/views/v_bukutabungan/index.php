@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row page-title-div">
             <div class="col-sm-6">
-                <h2 class="title">Buku Pembantu</h2>
+                <h2 class="title">Buku Tabungan</h2>
                 <p class="sub-title">SIMBMS (Sistem Informasi Bank Mini Sekolah)</p>
                 <label>
             </div>
@@ -12,8 +12,8 @@
             <div class="col-sm-6">
                 <ul class="breadcrumb">
                     <li><a href="<?php echo base_url('/') ?>"><i class="fa fa-home"></i>Home</a></li>
-                    <li>Accounting</li>
-                    <li class="active">Buku Pembantu</li>
+                    <li>Master Data</li>
+                    <li class="active">Buku Tabungan</li>
                 </ul>
             </div>
             <!-- /.col-sm-6 -->
@@ -33,7 +33,7 @@
                     <div class="panel">
                         <div class="panel-heading">
                             <div class="panel-title">
-                                <h5>Buku Pembantu</h5>
+                                <h5>Buku Tabungan</h5>
                             </div>
                         </div>
                         <div class="panel-body p-20">
@@ -74,12 +74,10 @@
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
-                                                    <th>Tanggal Transaksi</th>
-                                                    <th>Keterangan</th>
-                                                    <th>Debet</th>
-                                                    <th>Kredit</th>
-                                                    <th>Saldo</th>
-                                                    <th>Status Cetak</th>
+                                                    <th>Nomor Seri</th>
+                                                    <th>Tanggal Dikeluarkan</th>
+                                                    <th>Jenis Nasabah</th>
+                                                    <th>Nama Nasabah</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tableBP">

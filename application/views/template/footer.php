@@ -826,8 +826,8 @@
 				} else if (data.debet == 'siswa') {
 					$('#tipeTransaksi').val('debet')
 					$('.nominalInp').attr('tipe-debet', data.debet)
-					$('.nominalInp').attr('disabled', true)
-					$('.nominalInp').css('background', '#d4d4ba')
+					$('.nominalInp').attr('disabled', false)
+					$('.nominalInp').css('background', '#f7f774')
 					if (data.nominal > parseInt(saldo)) {
 						$('#warning').css("display", "block")
 						$('.btnAdd').attr('disabled', 'disabled')
@@ -844,8 +844,8 @@
 				if (data.debet == 'koperasi') {
 					$('#tipeTransaksi').val('debet')
 					$('.nominalInp').attr('tipe-debet', data.debet)
-					$('.nominalInp').attr('disabled', true)
-					$('.nominalInp').css('background', '#d4d4ba')
+					$('.nominalInp').attr('disabled', false)
+					$('.nominalInp').css('background', '#f7f774')
 					if (data.nominal > parseInt(saldo)) {
 						$('#warning').css("display", "block")
 						$('.btnAdd').attr('disabled', 'disabled')
@@ -946,7 +946,7 @@
 				$('.cusName').removeAttr('disabled');
 				$('.cusName').append('<option value="">Pilih Nama</option>')
 				data.forEach(function(res) {
-					$('.cusName').append('<option value="' + res.id_staf + '">' + res.nama + '</option>')
+					$('.cusName').append('<option value="' + res.nis + '">' + res.nama + '</option>')
 				})
 			});
 			$.get(baseUrl + 'mtransaksi/getMTransaksiStaf/koperasi', function(result) {
@@ -1000,6 +1000,7 @@
 					let koperasiK = '';
 					let koperasiD = '';
 					let saldoView = 0;
+					let status ='';
 					data.forEach(function(res) {
 						let tgl = new Date(res.tgl_update);
 						let tglbaru = tgl.getDate() + '-' + tgl.getMonth() + '-' + tgl.getFullYear();
@@ -1009,24 +1010,35 @@
 						} else if (res.debet == 'koperasi') {
 							koperasiD = 'staf'
 						}
-						if (tipe == res.kredit || tipe == koperasiK) {
-							saldo = parseInt(saldo) + parseInt(res.nominal)
-						} else if (tipe == res.debet || tipe == koperasiD) {
+						if (tipe == res.debet || tipe == koperasiD) {
 							saldo = parseInt(saldo) - parseInt(res.nominal)
+						} else {
+							saldo = parseInt(saldo) + parseInt(res.nominal)
 						}
-						if (res.tipeuser == res.debet) {
+						if (res.cetak==0) {
+							status = '<span class="badge bg-warning">Belum</span>';
+						} else {
+							status = '<span class="badge bg-success">Sudah</span>';
+						}
+						if (tipe == res.debet || tipe == koperasiD) {
 							saldoView = saldoView - parseInt(res.nominal)
-							$('#tableBP').append('<tr><td>' + no++ + '</td><td>' + res.tgl_update + '</td><td>' + res.keterangan + '</td><td>' + formatRupiah(res.nominal, 'Rp. ') + '</td><td> </td><td>' + formatRupiah(saldoView.toString(), "Rp. ") + '</td></tr>')
+							$('#tableBP').append('<tr><td>' + no++ + '</td><td>' + res.tgl_update + '</td><td>' + res.keterangan + '</td><td>' + formatRupiah(res.nominal, 'Rp. ') + '</td><td> </td><td>' + formatRupiah(saldoView.toString(), "Rp. ") + '</td><td>'+status+'</td></tr>')
 						} else {
 							saldoView = saldoView + parseInt(res.nominal)
-							$('#tableBP').append('<tr><td>' + no++ + '</td><td>' + res.tgl_update + '</td><td>' + res.keterangan + '</td><td></td><td>' + formatRupiah(res.nominal, 'Rp. ') + '</td><td>' + formatRupiah(saldoView.toString(), "Rp. ") + '</td></tr>')
+							$('#tableBP').append('<tr><td>' + no++ + '</td><td>' + res.tgl_update + '</td><td>' + res.keterangan + '</td><td></td><td>' + formatRupiah(res.nominal, 'Rp. ') + '</td><td>' + formatRupiah(saldoView.toString(), "Rp. ") + '</td><td>'+status+'</td></tr>')
 						}
 					})
 					// console.log(saldo)
 					$('.tfoot').html(` <tr>
                                             <th style="font-weigth: 600; text-align: right;" align="right">Sisa Saldo : </th>
                                             <th style="min-width: 134px; width: 134px; max-width: 134px;">` + formatRupiah(saldo.toString(), "Rp. ") + `</th>
-                                        </tr>`)
+                                        </tr>
+										<tr>
+											<td colspan="2">
+												<a href="cetak/`+ tipe +`/`+id+`" class="btn btn-sm btn-success float-right"><i class="fa fa-print"></i> Cetak Buku</a>
+											</td>
+										</tr>
+										`)
 				} else {
 					$('#tableBP').html('')
 					$('#tableBP').append('<tr><td colspan="6" align="center">Tidak ada Transaksi</td></tr>')
@@ -1910,6 +1922,21 @@
 		});
 
 	}
+
+	$('#jenis').change(function() {
+		if (this.value !== 'Pilih Jenis Nasabah') {
+			$.get(baseUrl + 'bukutabungan/getNasabah/' + this.value, function(result) {
+				let data = JSON.parse(result);
+				$('#selectNasabah').html('');
+				$('#selectNasabah').removeAttr('disabled');
+				$('#selectNasabah').append('<option value="">Pilih Nasabah</option>')
+				data.forEach(function(res) {
+					$('#selectNasabah').append('<option class="optkota" value="' + res.id_nasabah + '">' + res.nama_nasabah + '</option>')
+				})
+			});
+		}
+	})
+
 	$('#provinsi').change(function() {
 		if (this.value !== 'Pilih Provinsi') {
 			$.get(baseUrl + 'siswa/getkota/' + this.value, function(result) {

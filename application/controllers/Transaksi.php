@@ -171,7 +171,7 @@ class Transaksi extends CI_Controller
 		// $saldo = intval($this->input->get('ss'));
 		$saldo = 0;
 		if ($tipe == 'siswa') {
-			$query = $this->db->query("SELECT tb_transaksi.*, tb_siswa.namasiswa, tb_siswa.nis, tb_siswa.id_kelas FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis WHERE tb_transaksi.id_transaksi = $id")->row();
+			$query = $this->db->query("SELECT tb_transaksi.*, tb_siswa.namasiswa, tb_siswa.nis, tb_siswa.id_kelas, tb_users.kodepegawai, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.kategori FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis JOIN tb_users ON tb_transaksi.id_user = tb_users.id WHERE tb_transaksi.id_transaksi = $id")->row();
 			$query->nama = '';
 			$query->namaTransaksi = $query->namasiswa;
 			$query->kosong = false;
@@ -215,7 +215,7 @@ class Transaksi extends CI_Controller
 		try {
 			$this->load->library('escpos');
 
-			$connector = new Escpos\PrintConnectors\WindowsPrintConnector("hoster_web");
+			$connector = new Escpos\PrintConnectors\WindowsPrintConnector("epson plq-30");
 			// var_dump($connector);
 			$printer = new Escpos\Printer($connector);
 			// var_dump($printer);
@@ -225,47 +225,74 @@ class Transaksi extends CI_Controller
 			$printer->initialize();
 			// $printer->selectPrintMode(Escpos\Printer::MODE_DOUBLE_HEIGHT); // Setting teks menjadi lebih besar
 			$printer->setJustification(Escpos\Printer::JUSTIFY_CENTER); // Setting teks menjadi rata tengah
-			$printer->text("Koperasi Siswa\n");
-			$printer->text("SMKN 1 GARUT\n");
 			$printer->text("\n");
-			$printer->text("JL. RAYA SEMBUNG WRINGINANOM, Sembung,\n Kec. Wringin Anom, Gresik\n");
-			$printer->text("(031) 7762 5226 - www.sman1wringinanom.sch.id\n");
-			// Data transaksi
-			$printer->initialize();
-			$printer->text("------------------------------------------------\n");
-			$printer->text("Tanggal,Waktu : " . $date . "\n");
-			$printer->text("Kode Transaksi : " . $query->kodetransaksi . "\n");
-			$printer->text("------------------------------------------------\n");
+			$printer->text("\n");
+			$printer->text("\n");
+			$printer->text("\n");
+			$printer->text("\n");
+			$printer->text("          ");
+			$printer->text($query->kodetransaksi." ".$query->kodepegawai." ".$date);
+			$printer->text("\n");
+			$printer->text("          ");
 			if ($tipe == 'staf') {
-				$printer->text("No Anggota : " . $query->nopegawai . "\n");
-				$printer->text("\n");
-			}
-			$printer->text("Nama : " . $query->namaTransaksi . "\n");
-			$printer->text("\n");
+				$norek = $query->nopegawai;
+			} else
 			if ($tipe == 'siswa') {
-				$printer->text("NIS : " . $query->nis . "\n");
-				$printer->text("\n");
-				$printer->text("Kelas : " . $kelas . "\n");
-				$printer->text("\n");
+				$norek = $query->nis;
 			}
-			$printer->text("------------------------------------------------\n");
-			$printer->text("Nominal : Rp. " . number_format($query->nominal) . "\n");
-			$printer->text("Sisa Saldo : Rp. " . number_format($saldo) . "\n");
-			$printer->text("------------------------------------------------\n");
-			$printer->text("\n");
-			// Pesan penutup
-			$printer->initialize();
-			$printer->setJustification(Escpos\Printer::JUSTIFY_RIGHT);
-			$printer->text("\n");
-			$printer->text("Petugas\n");
-			$printer->text($staf . "\n");
-			$printer->feed(8); // mencetak 5 baris kosong agar terangkat (pemotong kertas saya memiliki jarak 5 baris dari toner)			
+			if($query->debet <> ""){
+				$kt = "D";
+			} else if ($query->kredit <> ""){
+				$kt = "K";
+			}
+			$printer->text($norek ." ". number_format($query->nominal,2) . " ".$kt."\n");
+			$printer->text("          ");
+			$printer->text($query->namaTransaksi . " ".$query->kategori);
+			// $printer->text("Koperasi Siswa\n");
+			// $printer->text("SMKN 1 GARUT\n");
+			// $printer->text("\n");
+			// $printer->text("JL. CIMANUK NO. 309 A, Pataruman,\n Kec. Tarogong Kidul, Garut\n");
+			// $printer->text("(0262) 233 316 - www.smknegeri1garut.sch.id\n");
+			// // Data transaksi
+			// $printer->initialize();
+			// $printer->text("------------------------------------------------\n");
+			// $printer->text("Tanggal,Waktu : " . $date . "\n");
+			// $printer->text("Kode Transaksi : " . $query->kodetransaksi . "\n");
+			// $printer->text("------------------------------------------------\n");
+			// if ($tipe == 'staf') {
+			// 	$printer->text("No Anggota : " . $query->nopegawai . "\n");
+			// 	$printer->text("\n");
+			// }
+			// $printer->text("Nama : " . $query->namaTransaksi . "\n");
+			// $printer->text("\n");
+			// if ($tipe == 'siswa') {
+			// 	$printer->text("NIS : " . $query->nis . "\n");
+			// 	$printer->text("\n");
+			// 	$printer->text("Kelas : " . $kelas . "\n");
+			// 	$printer->text("\n");
+			// }
+			// $printer->text("------------------------------------------------\n");
+			// $printer->text("Nominal : Rp. " . number_format($query->nominal) . "\n");
+			// $printer->text("Sisa Saldo : Rp. " . number_format($saldo) . "\n");
+			// $printer->text("------------------------------------------------\n");
+			// $printer->text("\n");
+			// // Pesan penutup
+			// $printer->initialize();
+			// $printer->setJustification(Escpos\Printer::JUSTIFY_RIGHT);
+			// $printer->text("\n");
+			// $printer->text("Petugas\n");
+			// $printer->text($staf . "\n");
+			// $printer->feed(8); // mencetak 5 baris kosong agar terangkat (pemotong kertas saya memiliki jarak 5 baris dari toner)			
 			$this->session->set_flashdata('alert', '<div class="alert alert-success left-icon-alert" role="alert">
 														<strong>Sukses!</strong> Berhasil.
 													</div>');
-			$printer->cut();
+			// $printer->cut();
 			//   $printer->pulse();
 			$printer->close();
+			echo "
+			<script>
+			window.close();
+			</script>";
 		} catch (Exception $e) {
 			echo "Ada Masalah: " . $e->getMessage() . "\n";
 		}
@@ -366,11 +393,11 @@ class Transaksi extends CI_Controller
 
 		if ($tipe == 'siswa') {
 			// $this->db->where('id_siswa', intval($id));
-			$query = $this->db->query('SELECT tb_transaksi.keterangan, tb_transaksi.nominal, tb_siswa.nis, tb_siswa.namasiswa, tb_siswa.id_kelas, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi, DATE_FORMAT(tb_transaksi.tgl_update,"%d-%m-%Y %H:%m:%s") AS tgl_update FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis WHERE tb_transaksi.id_siswa = ' . intval($id) . ' AND tb_transaksi.status = "aktif"')->result();
+			$query = $this->db->query('SELECT tb_transaksi.keterangan, tb_transaksi.nominal, tb_siswa.nis, tb_siswa.namasiswa, tb_siswa.id_kelas, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi, DATE_FORMAT(tb_transaksi.tgl_update,"%d-%m-%Y %H:%m:%s") AS tgl_update, tb_transaksi.cetak FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis WHERE tb_transaksi.id_siswa = ' . intval($id) . ' AND tb_transaksi.status = "aktif"')->result();
 			echo  json_encode($query);
 			// echo 'siswa';
 		} else if ($tipe == 'staf') {
-			$query = $this->db->query('SELECT tb_transaksi.keterangan, tb_transaksi.nominal, tb_staf.nopegawai, tb_staf.nama, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi, DATE_FORMAT(tb_transaksi.tgl_update,"%d-%m-%Y %H:%m:%s") AS tgl_update FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_staf ON tb_transaksi.id_anggota = tb_staf.id_staf WHERE tb_transaksi.id_anggota = ' . intval($id) . ' AND tb_transaksi.status = "aktif"')->result();
+			$query = $this->db->query('SELECT tb_transaksi.keterangan, tb_transaksi.nominal, tb_staf.nopegawai, tb_staf.nama, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi, DATE_FORMAT(tb_transaksi.tgl_update,"%d-%m-%Y %H:%m:%s") AS tgl_update, tb_transaksi.cetak FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_staf ON tb_transaksi.id_anggota = tb_staf.id_staf WHERE tb_transaksi.id_anggota = ' . intval($id) . ' AND tb_transaksi.status = "aktif"')->result();
 			echo  json_encode($query);
 			// echo 'staf';
 		} else {

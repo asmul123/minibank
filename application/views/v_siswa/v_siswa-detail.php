@@ -103,7 +103,7 @@
                                             <td><?= (!empty($datasiswa['provinsi']) ? $this->db->get_where('tb_provinsi', ['id_provinsi' => $datasiswa['provinsi']])->row()->name_prov : '' ) ?></td>
                                         </tr>                                                                             
                                     </table>
-                                    <button onclick="history.go(-1);" class="btn btn-primary"><i class="fa fa-arrow-left"></i>Kembali</button>                                    
+                                    <button onclick="history.go(-1);" class="btn btn-primary"><i class="fa fa-arrow-left"></i>Kembali</button> <a href="<?=base_url()?>Siswa/printOutButab/<?=$nis?>" class="btn btn-success" target="_blank"><i class="fa fa-print"></i>Cetak Cover Buku Tabungan</a> 
                             </div>
                         </div>
                     </div>
