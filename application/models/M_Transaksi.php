@@ -50,7 +50,7 @@ class M_Transaksi extends CI_Model {
         $data = [];    
         $dataUser = $this->db->get_where('tb_tipeuser', ['id_tipeuser' => $tipe])->row_array();
         if($dataUser['tipeuser'] == 'siswa'){
-            $querySiswa = $this->db->query("SELECT tb_transaksi.*, tb_siswa.nis, tb_siswa.namasiswa, tb_siswa.id_kelas, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis WHERE tb_siswa.nis = $nama")->result_array(); 
+            $querySiswa = $this->db->query("SELECT tb_transaksi.*, tb_siswa.nis, tb_siswa.namasiswa, tb_siswa.id_kelas, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_siswa ON tb_transaksi.id_siswa = tb_siswa.nis WHERE tb_siswa.nis = $nama AND tb_transaksi.status = 'aktif'")->result_array(); 
             foreach($querySiswa as $row){
                 $date = date_create($row['tgl_update']);
                 $row['tgl_update'] = date_format($date,"d-m-Y H:i:s");
@@ -60,7 +60,7 @@ class M_Transaksi extends CI_Model {
                 array_push($data, $row);
             }
         }else if($dataUser['tipeuser'] == 'staf'){
-            $queryStaf = $this->db->query("SELECT tb_transaksi.*, tb_staf.nopegawai, tb_staf.nama, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_staf ON tb_transaksi.id_anggota = tb_staf.id_staf WHERE tb_staf.id_staf = $nama")->result_array(); 
+            $queryStaf = $this->db->query("SELECT tb_transaksi.*, tb_staf.nopegawai, tb_staf.nama, tb_mastertransaksi.debet, tb_mastertransaksi.kredit, tb_mastertransaksi.deskripsi FROM tb_transaksi JOIN tb_mastertransaksi ON tb_transaksi.id_jenistransaksi = tb_mastertransaksi.id_mastertransaksi JOIN tb_staf ON tb_transaksi.id_anggota = tb_staf.id_staf WHERE tb_staf.id_staf = $nama AND tb_transaksi.status = 'aktif'")->result_array(); 
             foreach($queryStaf as $row){
                 $date = date_create($row['tgl_update']);
                 $row['tgl_update'] = date_format($date,"d-m-Y H:i:s");

@@ -997,6 +997,7 @@
 				if (data.length != 0) {
 					let saldo = 0;
 					let no = 1;
+					let baris = 1;
 					let koperasiK = '';
 					let koperasiD = '';
 					let saldoView = 0;
@@ -1005,6 +1006,8 @@
 						let tgl = new Date(res.tgl_update);
 						let tglbaru = tgl.getDate() + '-' + tgl.getMonth() + '-' + tgl.getFullYear();
 						console.log(tglbaru);
+						koperasiK = '';
+						koperasiD = '';
 						if (res.kredit == 'koperasi') {
 							koperasiK = 'staf'
 						} else if (res.debet == 'koperasi') {
@@ -1018,7 +1021,7 @@
 						if (res.cetak==0) {
 							status = '<span class="badge bg-warning">Belum</span>';
 						} else {
-							status = '<span class="badge bg-success">Sudah</span>';
+							status = '<span class="badge bg-success">Baris ke - ' + res.cetak + '</span>';
 						}
 						if (tipe == res.debet || tipe == koperasiD) {
 							saldoView = saldoView - parseInt(res.nominal)
@@ -1035,7 +1038,22 @@
                                         </tr>
 										<tr>
 											<td colspan="2">
-												<a href="cetak/`+ tipe +`/`+id+`" class="btn btn-sm btn-success float-right"><i class="fa fa-print"></i> Cetak Buku</a>
+												<select class="form-control form-control-sm" id="mulaiData">
+													<option value="0">Semua</option>
+													<option value="B">Belum Cetak</option>
+													` +
+													data.map(function(res) {
+													return `<option value="${baris}">Mulai dari baris ke - ${baris++}</option>`
+													}).join('') +
+												`</select>
+												<select class="form-control form-control-sm" id="mulaiBaris">
+													<option value="0">Pilih Baris di Buku</option>
+													` +
+													Array.from({length: 36}, (_, i) => i + 1).map(function(n) {
+													return `<option value="${n}">${n}</option>`
+													}).join('') +
+												`</select>
+												<button class="btn btn-sm btn-success float-right btnCetakBuku" data-tipe="`+ tipe +`" data-id="`+id+`"><i class="fa fa-print"></i> Cetak Buku</button>
 											</td>
 										</tr>
 										`)
@@ -1163,19 +1181,19 @@
 					let tipeTransaksi = '';
 					let tanggal = '';
 					let tanggalBaru = '';
-					let koperDebet = '';
-					let koperKredit = '';
+					let tipeStr = '';
+					if ($('.tipeuserAdd').val() == 2) tipeStr = 'siswa';
+					else if ($('.tipeuserAdd').val() == 1) tipeStr = 'staf';
 					data.forEach(function(res) {
 						tanggal = res.tgl_update;
 						tanggalBaru = tanggal.slice(0, 10);
+						let koperasiD = '';
 						if (res.debet == 'koperasi') {
-							koperDebet = 'staf'
-						} else if (res.kredit == 'koperasi') {
-							koperKredit = 'staf'
+							koperasiD = 'staf'
 						}
-						if (res.debet == 'siswa' || koperDebet == 'staf') {
+						if (tipeStr == res.debet || tipeStr == koperasiD) {
 							tipeTransaksi = 'Debet'
-						} else if (res.kredit == 'siswa' || koperKredit == 'staf') {
+						} else {
 							tipeTransaksi = 'Kredit'
 						}
 						$('#box-transaksi').append(`<tr>
@@ -3284,6 +3302,22 @@
 			// }
 		}
 
+	})
+
+	// Handler untuk tombol Cetak Buku
+	$(document).on('click', '.btnCetakBuku', function() {
+		let tipe = $(this).data('tipe');
+		let id = $(this).data('id');
+		let mulaiData = $('#mulaiData').val();
+		let mulaiBaris = $('#mulaiBaris').val();
+
+		if (mulaiData === '' || mulaiData === null) {
+			alert('Pilih mode cetak terlebih dahulu');
+			return;
+		}
+
+		let url = baseUrl + 'bukupembantu/cetak/' + tipe + '/' + id + '/' + mulaiData + '/' + mulaiBaris;
+		window.open(url, '_blank', 'width=800,height=600');
 	})
 
 	// ./modul/FORMAT IMPORT EXCEL.xlsx
