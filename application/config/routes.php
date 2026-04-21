@@ -145,5 +145,12 @@ $route['users-hps/(:any)'] = 'users/users_delete/$1';
 $route['users-edit/(:any)'] = 'users/users_edit/$1';
 $route['users-akses/(:any)'] = 'users/akses/$1';
 
+// backup database
+$route['backup'] = 'backup';
+$route['backup/create'] = 'backup/create_backup';
+$route['backup/download/(:any)'] = 'backup/download/$1';
+$route['backup/delete/(:any)'] = 'backup/delete/$1';
+$route['backup/restore/(:any)'] = 'backup/restore/$1';
+
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
